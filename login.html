@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - Pam_Lee's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container navbar-content">
+      <div class="navbar-brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="brand-name">Pam_Lee's Kitchen</span>
+      </div>
+      <nav class="nav-links desktop-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="menu.html" class="nav-link">Menu</a>
+        <a href="gallery.html" class="nav-link">Gallery</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-gold">Back to Home</a>
+        <button class="btn-icon mobile-menu-toggle" id="menuToggle">
+          <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="gallery.html" class="nav-link">Gallery</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="page-content">
+    <div class="container" style="max-width: 500px;">
+      <div class="feature-card fade-in">
+        <h2 style="text-align: center; margin-bottom: 0.5rem;">Welcome Back</h2>
+        <p style="text-align: center; color: var(--muted-foreground); margin-bottom: 2rem;">Sign in to your account</p>
+        
+        <form onsubmit="handleLogin(event)">
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email</label>
+            <input id="emailInput" type="email" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.375rem; font-family: inherit;">
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label>
+            <input id="passwordInput" type="password" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.375rem; font-family: inherit;">
+          </div>
+          <button type="submit" class="btn btn-gold btn-block">Sign In</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--muted-foreground);">
+          Don't have an account? <a href="signup.html" style="color: var(--gold);">Sign up</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Pam_Lee's Kitchen</h3>
+          <p>Bringing joy through delicious homemade baked goods since 2024</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>📞 +27 79 123 4567</p>
+          <p>📧 pamlees@kitchen.co.za</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pam_Lee's Kitchen. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
+
+  <!-- Your Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcc9rRXLB9-mjWWFHdY76HrU7Wduq3FlI",
+  authDomain: "pamlee-kitchen.firebaseapp.com",
+  projectId: "pamlee-kitchen",
+  storageBucket: "pamlee-kitchen.firebasestorage.app",
+  messagingSenderId: "400787674557",
+  appId: "1:400787674557:web:d96abce24f2ada5e876ed4",
+  measurementId: "G-Q5R9ZQQ94K"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Login Logic -->
+  <script>
+    async function handleLogin(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value.trim();
+
+      // 🔐 Admin shortcut (as requested)
+      if ((email === 'pamleeadmin' || email === 'pamleeadmin@admin.local') && password === 'password123') {
+        localStorage.setItem('pamlee_is_admin', '1');
+        alert('Welcome Admin!');
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      // 🔑 Normal user login
+      try {
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        alert('Welcome back, ' + (cred.user.displayName || cred.user.email) + '!');
+        window.location.href = 'index.html'; // redirect to homepage
+      } catch (err) {
+        alert('Login failed: ' + err.message);
+      }
+    }
+  </script>
+
+  <!-- Your general site JS (optional for nav toggle, etc.) -->
+  <script src="script.js"></script>
+</body>
+</html>
