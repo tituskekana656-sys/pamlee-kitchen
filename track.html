@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Order - Pam_Lee's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="orders.js"></script>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container navbar-content">
+      <div class="navbar-brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="brand-name">Pam_Lee's Kitchen</span>
+      </div>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-gold">Back to Home</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="page-content">
+    <div class="container" style="max-width:500px;">
+      <div class="feature-card fade-in" style="padding:2rem;">
+        <h2 style="text-align:center;">Track Your Order</h2>
+        <p style="text-align:center;color:var(--muted-foreground);margin-bottom:1rem;">
+          Enter your order tracker ID below to see its live status.
+        </p>
+
+        <form id="trackForm" style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+          <input type="text" id="trackerInput" placeholder="Enter Tracker ID" required
+                 style="flex:1;padding:0.75rem;border:1px solid var(--border);border-radius:0.375rem;">
+          <button class="btn btn-gold" type="submit">Track</button>
+        </form>
+
+        <div id="trackResult" style="text-align:center;">
+          <p style="color:var(--muted-foreground);">No order loaded yet.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Pam_Lee's Kitchen</h3>
+          <p>Bringing joy through delicious homemade baked goods since 2024</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>📞 +27 79 123 4567</p>
+          <p>📧 pamlees@kitchen.co.za</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pam_Lee's Kitchen. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { listenOrders, notify } from './orders.js';
+
+    const form = document.getElementById('trackForm');
+    const trackerInput = document.getElementById('trackerInput');
+    const trackResult = document.getElementById('trackResult');
+
+    let currentTracker = null;
+
+    // Render a given order
+    function renderOrder(order) {
+      if (!order) {
+        trackResult.innerHTML = `<p style="color:var(--muted-foreground);">Order not found. Please check your tracker ID.</p>`;
+        return;
+      }
+      const placed = new Date(order.placedAt).toLocaleString();
+      const updated = order.updatedAt ? new Date(order.updatedAt).toLocaleString() : placed;
+      trackResult.innerHTML = `
+        <div style="text-align:left;">
+          <h3>Order: ${order.trackerId}</h3>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <p><strong>Total:</strong> R ${order.total.toFixed(2)}</p>
+          <p><strong>Placed:</strong> ${placed}</p>
+          <p><strong>Last update:</strong> ${updated}</p>
+          <p><strong>Items:</strong></p>
+          <ul style="margin-left:1rem;">
+            ${order.items.map(i => `<li>${i.name} x${i.quantity}</li>`).join('')}
+          </ul>
+          <p><strong>Method:</strong> ${order.paymentMethod} | ${order.fulfilment}</p>
+        </div>
+      `;
+    }
+
+    // Handle form submit
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = trackerInput.value.trim();
+      if (!id) return;
+      currentTracker = id;
+
+      const orders = JSON.parse(localStorage.getItem('pamlee_orders') || '[]');
+      const order = orders.find(o => o.trackerId === id);
+      renderOrder(order);
+    });
+
+    // Listen for live updates
+    listenOrders(data => {
+      if (!currentTracker) return;
+      if (data.type === 'update_order' && data.trackerId === currentTracker) {
+        const orders = JSON.parse(localStorage.getItem('pamlee_orders') || '[]');
+        const order = orders.find(o => o.trackerId === currentTracker);
+        renderOrder(order);
+        notify(`Your order (${currentTracker}) is now ${data.status}`);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Orders - Pam_Lee's Kitchen</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    .order-card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+    .order-status {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .status-step {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: all 0.3s ease;
+    }
+    .status-step.active {
+      background: var(--accent, #eab308);
+    }
+    .timeline {
+      border-left: 2px solid var(--border);
+      margin-top: 1rem;
+      padding-left: 1rem;
+    }
+    .timeline-item {
+      margin-bottom: 0.75rem;
+    }
+    .timeline-item span {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted-foreground);
+    }
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 9999;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="container navbar-content">
+      <div class="navbar-brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="brand-name">My Dashboard</span>
+      </div>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-outline">← Back to Home</a>
+        <button id="logoutBtn" class="btn btn-gold">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="container">
+      <div class="page-header fade-in">
+        <h1>Welcome to your <span class="text-gradient-gold">Dashboard</span></h1>
+        <p>Track all your orders in real-time</p>
+      </div>
+
+      <div id="ordersContainer" style="margin-top: 2rem;">
+        <div class="feature-card" style="text-align:center;padding:2rem;">
+          Loading your orders...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pam_Lee's Kitchen. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="orders.js"></script>
+  <script>
+    // ==========================
+    // 🔐 USER VALIDATION
+    // ==========================
+    const user = JSON.parse(localStorage.getItem('pamlee_user') || 'null');
+    if (!user) {
+      alert('Please sign in to access your dashboard.');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('pamlee_user');
+      alert('Signed out successfully.');
+      window.location.href = 'login.html';
+    });
+
+    // ==========================
+    // 📦 LOAD AND RENDER ORDERS
+    // ==========================
+    const container = document.getElementById('ordersContainer');
+    const currentUser = user?.email;
+
+    function getUserOrders() {
+      const all = JSON.parse(localStorage.getItem('pamlee_orders') || '[]');
+      return all.filter(o => o.userEmail === currentUser);
+    }
+
+    function isAfter(current, step) {
+      const steps = ['placed','preparing','ready','out-for-delivery','picked-up','delivered'];
+      return steps.indexOf(step) <= steps.indexOf(current);
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
+
+    function renderOrders() {
+      const orders = getUserOrders();
+      if (orders.length === 0) {
+        container.innerHTML = '<div class="feature-card" style="padding:2rem;text-align:center;">No orders found</div>';
+        return;
+      }
+
+      container.innerHTML = orders.map(o => {
+        // Sanitize timeline (fix undefined / invalid)
+        const timeline = (o.timeline || []).map(entry => {
+          const time = entry.time ? new Date(entry.time) : new Date();
+          const status = entry.status || o.status || 'update';
+          const note = entry.note || entry || '';
+          return { time, status, note };
+        });
+
+        return `
+          <div class="order-card">
+            <h3>Tracking ID: ${o.trackerId}</h3>
+            <p><strong>Total:</strong> R ${o.total.toFixed(2)} | <strong>Method:</strong> ${o.paymentMethod} | <strong>${o.fulfilment}</strong></p>
+            <p><small>Placed: ${new Date(o.placedAt).toLocaleString()}</small></p>
+
+            <div class="order-status">
+              ${['placed','preparing','ready','out-for-delivery','picked-up','delivered']
+                .map(s => `<div class="status-step ${isAfter(o.status,s)?'active':''}" title="${s}"></div>`).join('')}
+            </div>
+
+            <div class="timeline">
+              ${timeline.map(t => `
+                <div class="timeline-item">
+                  <strong>${t.status}</strong>
+                  <span>${t.time.toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                  <span>${t.note}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========================
+    // 🔄 REAL-TIME UPDATES
+    // ==========================
+    if (window.BroadcastChannel) {
+      const ch = new BroadcastChannel('pamlee_orders');
+      ch.addEventListener('message', e => {
+        if (e.data?.type === 'update_order' || e.data?.type === 'new_order') {
+          renderOrders();
+          showToast('🔄 Order status updated!');
+        }
+      });
+    } else {
+      window.addEventListener('storage', e => {
+        if (e.key === 'pamlee_orders_event') {
+          renderOrders();
+          showToast('🔄 Order status updated!');
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', renderOrders);
+  </script>
+</body>
+</html>

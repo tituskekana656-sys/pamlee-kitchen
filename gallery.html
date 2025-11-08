@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery - Pam_Lee's Kitchen</title>
+  <meta name="description" content="Browse our beautiful collection of cakes, pastries, and desserts made with love by Pam_Lee's Kitchen.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .gallery-card {
+      background: var(--background);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      transition: var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gallery-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .gallery-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-bottom: 2px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .gallery-card:hover img {
+      filter: brightness(0.95);
+    }
+
+    .gallery-info {
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .gallery-info h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--foreground);
+      margin-bottom: 0.5rem;
+    }
+
+    .gallery-info p {
+      font-size: 0.9rem;
+      color: var(--muted-foreground);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container navbar-content">
+      <div class="navbar-brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="brand-name">Pam_Lee's Kitchen</span>
+      </div>
+
+      <nav class="nav-links desktop-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="menu.html" class="nav-link">Menu</a>
+        <a href="gallery.html" class="nav-link active">Gallery</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions" id="userActions">
+        <button class="btn-icon" id="cartBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="page-content">
+    <div class="container">
+      <div class="page-header fade-in">
+        <h1>Our <span class="text-gradient-gold">Gallery</span></h1>
+        <p>Explore our delicious creations and freshly baked masterpieces</p>
+      </div>
+
+      <div class="gallery-grid fade-in">
+        <div class="gallery-card">
+          <img src="src/assets/product-cake.jpg" alt="Chocolate Cake">
+          <div class="gallery-info">
+            <h3>Chocolate Cake</h3>
+            <p>Rich and indulgent, our best-seller</p>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img src="src/assets/product-cupcakes.jpg" alt="Cupcakes">
+          <div class="gallery-info">
+            <h3>Assorted Cupcakes</h3>
+            <p>Colorful and sweet, perfect for any occasion</p>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img src="src/assets/product-pastries.jpg" alt="Pastries">
+          <div class="gallery-info">
+            <h3>French Pastries</h3>
+            <p>Flaky, buttery perfection baked daily</p>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img src="src/assets/product-bread.jpg" alt="Bread">
+          <div class="gallery-info">
+            <h3>Fresh Bread Loaves</h3>
+            <p>Soft inside, golden crust on the outside</p>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img src="src/assets/hero-bakery.jpg" alt="Bakery Interior">
+          <div class="gallery-info">
+            <h3>Our Bakery</h3>
+            <p>Where the magic happens every morning</p>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img src="src/assets/product-muffins.jpg" alt="Muffins">
+          <div class="gallery-info">
+            <h3>Blueberry Muffins</h3>
+            <p>Moist and fluffy with juicy blueberries</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Pam_Lee's Kitchen</h3>
+          <p>Bringing joy through delicious homemade baked goods since 2024</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>📞 +27 79 123 4567</p>
+          <p>📧 pamlees@kitchen.co.za</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pam_Lee's Kitchen. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Modal -->
+  <div class="cart-modal" id="cartModal">
+    <div class="cart-content">
+      <div class="cart-header">
+        <h2>Shopping Cart</h2>
+        <button class="btn-close" id="closeCart">&times;</button>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-footer">
+        <div class="cart-total">
+          <span>Total:</span>
+          <span id="cartTotal">R 0.00</span>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="checkout()">Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="cart.js"></script>
+  <script src="script.js"></script>
+  <script>
+    const user = JSON.parse(localStorage.getItem('pamlee_user') || 'null');
+    const actionsDiv = document.getElementById('userActions');
+    if (user) {
+      const name = user.email.split('@')[0];
+      actionsDiv.innerHTML += `
+        <span style="margin-left:1rem;">👤 Hi, ${name}</span>
+        <button id="logoutBtn" class="btn btn-gold" style="margin-left:1rem;">Sign Out</button>`;
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('pamlee_user');
+        alert('Signed out successfully!');
+        window.location.href = 'login.html';
+      });
+    } else {
+      actionsDiv.innerHTML += `<a href="login.html" class="btn btn-gold" style="margin-left:1rem;">Sign In</a>`;
+    }
+  </script>
+</body>
+</html>

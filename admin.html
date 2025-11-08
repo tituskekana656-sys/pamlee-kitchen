@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Pam_Lee's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container navbar-content">
+      <div class="navbar-brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="brand-name">Pam_Lee's Kitchen - Admin</span>
+      </div>
+      <div class="nav-actions">
+        <button id="logoutBtn" class="btn btn-gold" style="margin-right:0.5rem;">Sign Out</button>
+        <a href="index.html" class="btn btn-outline">Back to Site</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="page-content">
+    <div class="container">
+      <div class="page-header fade-in">
+        <h1>Admin <span class="text-gradient-gold">Dashboard</span></h1>
+        <p>Manage live customer orders in real-time</p>
+      </div>
+
+      <div id="ordersContainer" class="fade-in" style="margin-top:2rem;">
+        <div class="feature-card" style="padding:1.5rem;text-align:center;">
+          <p>Loading orders...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Pam_Lee's Kitchen</h3>
+          <p>Bringing joy through delicious homemade baked goods since 2024</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>📞 +27 79 123 4567</p>
+          <p>📧 pamlees@kitchen.co.za</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pam_Lee's Kitchen. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Admin Script -->
+  <script>
+    // =============================
+    // 🔐 Session Check
+    // =============================
+    const admin = JSON.parse(localStorage.getItem('pamlee_admin') || 'null');
+    if (!admin) {
+      alert('Please sign in as admin first.');
+      window.location.href = 'login.html';
+    }
+
+    // =============================
+    // 🚪 Logout Handler
+    // =============================
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('pamlee_admin');
+      alert('You have been signed out.');
+      window.location.href = 'login.html';
+    });
+
+    // =============================
+    // 📡 Shared Broadcast Channel
+    // =============================
+    const orderChannel = (() => {
+      if (window.BroadcastChannel) {
+        const ch = new BroadcastChannel('pamlee_orders');
+        return {
+          post: (data) => ch.postMessage(data),
+          listen: (cb) => ch.addEventListener('message', e => cb(e.data))
+        };
+      } else {
+        return {
+          post: (data) => localStorage.setItem('pamlee_orders_event', JSON.stringify({ data, t: Date.now() })),
+          listen: (cb) => window.addEventListener('storage', e => {
+            if (e.key === 'pamlee_orders_event' && e.newValue) {
+              cb(JSON.parse(e.newValue).data);
+            }
+          })
+        };
+      }
+    })();
+
+    // =============================
+    // 🔔 Toast Notification
+    // =============================
+    function showToast(msg, time = 2500) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position: 'fixed',
+        bottom: '1.5rem',
+        right: '1.5rem',
+        padding: '0.8rem 1rem',
+        background: 'var(--secondary)',
+        color: 'var(--primary)',
+        borderRadius: '8px',
+        fontWeight: '600',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+        zIndex: 9999
+      });
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), time);
+    }
+
+    // =============================
+    // 📦 Render Orders
+    // =============================
+    function renderOrders() {
+      const container = document.getElementById('ordersContainer');
+      const orders = JSON.parse(localStorage.getItem('pamlee_orders') || '[]');
+      if (orders.length === 0) {
+        container.innerHTML = '<div class="feature-card" style="padding:2rem;text-align:center;">No orders yet</div>';
+        return;
+      }
+
+      container.innerHTML = orders.map(order => `
+        <div class="feature-card" style="margin-bottom:1rem;padding:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <strong>${order.trackerId}</strong> <br>
+              <small>${order.userEmail}</small><br>
+              <small>Placed: ${new Date(order.placedAt).toLocaleString()}</small>
+            </div>
+            <div>
+              <strong>R ${order.total.toFixed(2)}</strong><br>
+              <span style="font-size:0.9rem;color:gray;">${order.paymentMethod} / ${order.fulfilment}</span>
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <label>Status:</label>
+            <select data-id="${order.trackerId}" style="padding:0.3rem 0.5rem;border-radius:6px;margin-right:0.5rem;">
+              ${['placed','preparing','ready','out-for-delivery','picked-up','delivered']
+                .map(status => `<option ${status===order.status?'selected':''}>${status}</option>`).join('')}
+            </select>
+            <button class="btn btn-gold btn-sm" data-update="${order.trackerId}">Update</button>
+          </div>
+          <div style="margin-top:0.5rem;color:var(--muted-foreground);font-size:0.9rem;">
+            Items: ${order.items.map(i => `${i.name} x${i.quantity}`).join(', ')}
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('[data-update]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-update');
+          const status = document.querySelector(`select[data-id="${id}"]`).value;
+          updateOrderStatus(id, status);
+        });
+      });
+    }
+
+    // =============================
+    // 🔄 Update Order Status (Fixed)
+    // =============================
+    function updateOrderStatus(trackerId, status) {
+      const orders = JSON.parse(localStorage.getItem('pamlee_orders') || '[]');
+      const idx = orders.findIndex(o => o.trackerId === trackerId);
+      if (idx === -1) return;
+
+      const order = orders[idx];
+      if (!order.timeline) order.timeline = [];
+
+      // Add timeline entry
+      order.timeline.push({
+        status,
+        time: new Date().toISOString(),
+        note: `Order status changed to "${status}" by admin`
+      });
+
+      order.status = status;
+      order.updatedAt = Date.now();
+      orders[idx] = order;
+
+      localStorage.setItem('pamlee_orders', JSON.stringify(orders));
+      orderChannel.post({ type: 'update_order', trackerId, status });
+      showToast(`✅ Order ${trackerId} updated to ${status}`);
+      renderOrders();
+    }
+
+    // =============================
+    // 🧭 Real-time Listeners
+    // =============================
+    orderChannel.listen(data => {
+      if (!data || !data.type) return;
+      if (data.type === 'new_order') {
+        showToast('🛍️ New order received!');
+        renderOrders();
+      } else if (data.type === 'update_order') {
+        renderOrders();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', renderOrders);
+  </script>
+</body>
+</html>

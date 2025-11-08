@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up - Pam_Lee's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .signup-card {
+      max-width: 480px;
+      margin: 4rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      font-family: 'Poppins', sans-serif;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-family: inherit;
+    }
+    .btn-block {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="container navbar-content">
+      <div class="navbar-brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="brand-name">Pam_Lee's Kitchen</span>
+      </div>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-gold">Back to Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="signup-card fade-in">
+      <h2 style="text-align:center;margin-bottom:0.5rem;">Create Your Account</h2>
+      <p style="text-align:center;color:var(--muted-foreground);margin-bottom:2rem;">Join Pam_Lee’s Kitchen family</p>
+
+      <form id="signupForm">
+        <label>Email</label>
+        <input type="email" id="email" required placeholder="Enter your email">
+
+        <label>Password</label>
+        <input type="password" id="password" required placeholder="Enter your password">
+
+        <button type="submit" class="btn btn-gold btn-block">Sign Up</button>
+      </form>
+
+      <p style="text-align:center;margin-top:1rem;">
+        Already have an account? <a href="login.html" style="color:var(--primary);text-decoration:underline;">Sign In</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Pam_Lee's Kitchen</h3>
+          <p>Bringing joy through delicious homemade baked goods since 2024</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>📞 +27 79 123 4567</p>
+          <p>📧 pamlees@kitchen.co.za</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pam_Lee's Kitchen. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      const users = JSON.parse(localStorage.getItem('pamlee_users') || '[]');
+      if (users.find(u => u.email === email)) {
+        alert('Account already exists. Please sign in.');
+        return;
+      }
+
+      users.push({ email, password });
+      localStorage.setItem('pamlee_users', JSON.stringify(users));
+      localStorage.setItem('pamlee_user', JSON.stringify({ email }));
+
+      alert('Account created successfully! Redirecting...');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
